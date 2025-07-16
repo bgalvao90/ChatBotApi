@@ -12,6 +12,7 @@ namespace ChatBotApi.Services.Implementations
             var url = $"https://api.telegram.org/bot7627120584:AAGuBKR1sherIxFIT9G2HXpoNFfO3fvhRN4/sendMessage";
             var payload = new
             {
+
                 chat_id = idExterno,
                 text = mensagem
             };

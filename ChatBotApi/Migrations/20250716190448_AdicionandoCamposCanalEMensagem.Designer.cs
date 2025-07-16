@@ -4,6 +4,7 @@ using ChatBotApi.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ChatBotApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250716190448_AdicionandoCamposCanalEMensagem")]
+    partial class AdicionandoCamposCanalEMensagem
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -151,6 +154,7 @@ namespace ChatBotApi.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Canal")
+                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<string>("Conteudo")
@@ -168,6 +172,7 @@ namespace ChatBotApi.Migrations
                         .HasColumnType("longtext");
 
                     b.Property<string>("IdUsuarioExterno")
+                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.HasKey("Id");

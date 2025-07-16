@@ -4,6 +4,8 @@ using ChatBotApi.Context;
 using ChatBotApi.DTOs.Mapping;
 using ChatBotApi.Repositories.Implementations;
 using ChatBotApi.Repositories.Interfaces;
+using ChatBotApi.Services.Implementations;
+using ChatBotApi.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -69,6 +71,11 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization();
 
+builder.Services.AddControllers().AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+});
+
 
 builder.Services.AddCors(options =>
 {
@@ -85,6 +92,14 @@ builder.Services.AddScoped<IAtendenteRepository, AtendenteRepository>();
 builder.Services.AddScoped<IMensagemRepository, MensagemRepository>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<IDistribuidorService, DistribuidorService>();
+builder.Services.AddScoped<IAtendenteService, AtendenteService>();
+builder.Services.AddScoped<IAtendimentoService, AtendimentoService>();
+builder.Services.AddScoped<IIAService, IAService>();
+builder.Services.AddScoped<IMensagemService, MensagemService>();
+builder.Services.AddScoped<ICanalService, TelegramService>();
+
+
 
 
 builder.Services.AddControllers();

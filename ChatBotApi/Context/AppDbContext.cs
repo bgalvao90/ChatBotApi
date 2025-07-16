@@ -24,7 +24,7 @@ namespace ChatBotApi.Context
 
             modelBuilder.Entity<Atendimento>()
                 .HasMany(a => a.Mensagens)
-                .WithOne()
+                .WithOne(m => m.Atendimento)
                 .HasForeignKey(m => m.AtendimentoId)
                 .OnDelete(DeleteBehavior.Restrict);
 

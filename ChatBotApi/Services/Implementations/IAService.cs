@@ -1,13 +1,14 @@
 ﻿using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
+using ChatBotApi.Services.Interfaces;
 
-public class OpenAIService
+public class IAService : IIAService
 {
     private readonly HttpClient _httpClient;
     private readonly string _apiKey;
 
-    public OpenAIService(IConfiguration configuration)
+    public IAService(IConfiguration configuration)
     {
         _httpClient = new HttpClient();
 
@@ -19,7 +20,7 @@ public class OpenAIService
         _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _apiKey);
     }
 
-    public async Task<(string categoria, string titulo)> ClassificarMensagemAsync(string mensagem)
+    public async Task<(string categoria, string titulo, string Resumo)> ClassificarMensagemAsync(string mensagem)
     {
         var prompt = $@"
 Você é um assistente inteligente que ajuda atendentes humanos a entender rapidamente o tipo de problema de um cliente.
@@ -63,9 +64,21 @@ Apenas retorne o JSON no formato:
 
         // Parsea o JSON retornado pela IA
         using JsonDocument resultadoJson = JsonDocument.Parse(respostaBruta!);
-        var categoria = resultadoJson.RootElement.GetProperty("Categoria").GetString()?.Trim() ?? "outros";
-        var titulo = resultadoJson.RootElement.GetProperty("Titulo").GetString()?.Trim() ?? "Novo atendimento";
+        var root = resultadoJson.RootElement;
 
-        return (categoria, titulo);
+        var categoria = root.TryGetProperty("Categoria", out var catProp)
+            ? catProp.GetString()?.Trim() ?? "outros"
+            : "outros";
+
+        var titulo = root.TryGetProperty("Titulo", out var tituloProp)
+            ? tituloProp.GetString()?.Trim() ?? "Novo atendimento"
+            : "Novo atendimento";
+
+        var resumo = root.TryGetProperty("Resumo", out var resumoProp)
+            ? resumoProp.GetString()?.Trim() ?? ""
+            : "";
+
+
+        return (categoria, titulo, resumo);
     }
 }

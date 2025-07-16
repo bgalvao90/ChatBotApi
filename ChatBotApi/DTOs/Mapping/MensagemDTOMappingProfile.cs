@@ -10,6 +10,8 @@ namespace ChatBotApi.DTOs.Mapping
             CreateMap<MensagemEntradaDto, Mensagem>();
             CreateMap<RespostaAtendenteDto, Mensagem>();
             CreateMap<Mensagem, MensagemDto>();
+            CreateMap<Atendimento, AtendimentoDto>();
+
         }
     }
 }

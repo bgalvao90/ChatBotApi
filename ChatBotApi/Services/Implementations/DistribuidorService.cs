@@ -28,12 +28,14 @@ namespace ChatBotApi.Services.Implementations
             }
             var novoAtendimento = new Atendimento
             {
+                Canal = mensagem.Canal,
+                IdUsuarioExterno = mensagem.IdUsuarioExterno,
                 Titulo = titulo,
                 Categoria = categoria,
                 Observacao = resumo,
                 NomeUsuario = mensagem.EnviadoPor,
                 CriadoEm = DateTime.Now,
-                Status = AtendimentoStatus.Andamento,
+                Status = AtendimentoStatus.Iniciado,
                 AtendenteId = atendentesDisponiveis.Id,
                 Mensagens = new List<Mensagem> { mensagem },
             };
