@@ -5,41 +5,41 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ChatBotApi.Repositories.Implementations
 {
-    public class Repository<T> : IRepository<T> where T :  class
+    public class Repository<T> : IRepository<T> where T : class
     {
         protected readonly AppDbContext _context;
+
         public Repository(AppDbContext context)
         {
             _context = context;
         }
+
         public async Task<IEnumerable<T>> GetAllAsync()
         {
-            System.Threading.Thread.Sleep(3000);
             return await _context.Set<T>().AsNoTracking().ToListAsync();
         }
 
         public async Task<T?> GetAsync(Expression<Func<T, bool>> predicate)
         {
             return await _context.Set<T>().FirstOrDefaultAsync(predicate);
-
         }
 
-        public T Create(T entity)
+        public async Task<T> CreateAsync(T entity)
         {
-            _context.Set<T>().Add(entity);
+            await _context.Set<T>().AddAsync(entity);
             return entity;
         }
 
-        public T Delete(T entity)
-        {
-            _context.Set<T>().Remove(entity);
-            return entity;
-        }
-
-        public T Update(T entity)
+        public Task<T> UpdateAsync(T entity)
         {
             _context.Entry(entity).State = EntityState.Modified;
-            return entity;
+            return Task.FromResult(entity);
+        }
+
+        public Task<T> DeleteAsync(T entity)
+        {
+            _context.Set<T>().Remove(entity);
+            return Task.FromResult(entity);
         }
     }
 }

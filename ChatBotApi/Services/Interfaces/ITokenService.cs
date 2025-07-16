@@ -1,9 +1,10 @@
-﻿using ApiCatalogoMinimalApi.Models;
+﻿using ChatBotApi;
 
-namespace ApiCatalogoMinimalApi.Services.Interfaces
+namespace ChatBotApi { 
+
+public interface ITokenService
 {
-    public interface ITokenService
-    {
-        string GerarToken(string key, string issuer, string audience, UserModel user);
-    }
+    string GerarToken(string key, string issuer, string audience, UserModel user);
+}
+
 }

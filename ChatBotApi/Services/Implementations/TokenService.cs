@@ -1,11 +1,11 @@
-﻿using System.IdentityModel.Tokens.Jwt;
+﻿using ChatBotApi;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using ApiCatalogoMinimalApi.Models;
-using ApiCatalogoMinimalApi.Services.Interfaces;
 using Microsoft.IdentityModel.Tokens;
+using ChatBotApi.Models;
 
-namespace ApiCatalogoMinimalApi.Services.Implementations
+namespace ChatBotApi
 {
     public class TokenService : ITokenService
     {
@@ -13,11 +13,12 @@ namespace ApiCatalogoMinimalApi.Services.Implementations
         {
             var claims = new[]
             {
-                new Claim(ClaimTypes.Name, user.UserName),
-                new Claim(ClaimTypes.NameIdentifier, Guid.NewGuid().ToString())
-            };
+                    new Claim(ClaimTypes.Name, user.UserName ?? string.Empty),
+                    new Claim(ClaimTypes.NameIdentifier, Guid.NewGuid().ToString()),
+                    new Claim(ClaimTypes.Role, user.Role.ToString()) 
+                };
 
-            var securiyKey =  new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
+            var securiyKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
 
             var credentials = new SigningCredentials(securiyKey, SecurityAlgorithms.HmacSha256);
 

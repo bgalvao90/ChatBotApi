@@ -1,4 +1,5 @@
 using System.Text;
+using ChatBotApi;
 using ChatBotApi.Context;
 using ChatBotApi.DTOs.Mapping;
 using ChatBotApi.Repositories.Implementations;
@@ -69,12 +70,21 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddAuthorization();
 
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("PermitirTudo", policy =>
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader());
+});
+
 builder.Services.AddAutoMapper(typeof(MensagemDTOMappingProfile));
 
 builder.Services.AddScoped<IAtendimentoRepository, AtendimentoRepository>();
 builder.Services.AddScoped<IAtendenteRepository, AtendenteRepository>();
 builder.Services.AddScoped<IMensagemRepository, MensagemRepository>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<ITokenService, TokenService>();
 
 
 builder.Services.AddControllers();
@@ -92,6 +102,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors("PermitirTudo");
 
 app.UseAuthorization();
 

@@ -9,7 +9,7 @@ namespace ChatBotApi.Repositories.Implementations
     public class AtendimentoRepository : Repository<Atendimento>, IAtendimentoRepository
     {
         private readonly AppDbContext _context;
-
+        
         public AtendimentoRepository(AppDbContext context) : base(context)
         {
             _context = context;

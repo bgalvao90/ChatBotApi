@@ -4,6 +4,7 @@ using ChatBotApi.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ChatBotApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250716135819_AdicionandoUsuarios")]
+    partial class AdicionandoUsuarios
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -49,13 +52,11 @@ namespace ChatBotApi.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<int>("UserModelId")
-                        .HasColumnType("int");
+                    b.Property<string>("Usuario")
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("UserModelId")
-                        .IsUnique();
 
                     b.ToTable("Atendentes");
                 });
@@ -75,13 +76,6 @@ namespace ChatBotApi.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<string>("Categoria")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<int?>("ClienteId")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("CriadoEm")
                         .HasColumnType("datetime(6)");
 
@@ -93,15 +87,7 @@ namespace ChatBotApi.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<string>("Observacao")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
                     b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Titulo")
                         .IsRequired()
                         .HasColumnType("longtext");
 
@@ -109,36 +95,7 @@ namespace ChatBotApi.Migrations
 
                     b.HasIndex("AtendenteId");
 
-                    b.HasIndex("ClienteId");
-
                     b.ToTable("Atendimentos");
-                });
-
-            modelBuilder.Entity("ChatBotApi.Models.Cliente", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Nome")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<int?>("UserModelId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserModelId")
-                        .IsUnique();
-
-                    b.ToTable("Clientes");
                 });
 
             modelBuilder.Entity("ChatBotApi.Models.Mensagem", b =>
@@ -185,9 +142,8 @@ namespace ChatBotApi.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<string>("Role")
-                        .IsRequired()
-                        .HasColumnType("longtext");
+                    b.Property<int>("Role")
+                        .HasColumnType("int");
 
                     b.Property<string>("UserName")
                         .IsRequired()
@@ -198,17 +154,6 @@ namespace ChatBotApi.Migrations
                     b.ToTable("Usuarios");
                 });
 
-            modelBuilder.Entity("ChatBotApi.Models.Atendente", b =>
-                {
-                    b.HasOne("ChatBotApi.UserModel", "Usuario")
-                        .WithOne("Atendente")
-                        .HasForeignKey("ChatBotApi.Models.Atendente", "UserModelId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Usuario");
-                });
-
             modelBuilder.Entity("ChatBotApi.Models.Atendimento", b =>
                 {
                     b.HasOne("ChatBotApi.Models.Atendente", null)
@@ -216,20 +161,6 @@ namespace ChatBotApi.Migrations
                         .HasForeignKey("AtendenteId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.HasOne("ChatBotApi.Models.Cliente", null)
-                        .WithMany("Atendimentos")
-                        .HasForeignKey("ClienteId");
-                });
-
-            modelBuilder.Entity("ChatBotApi.Models.Cliente", b =>
-                {
-                    b.HasOne("ChatBotApi.UserModel", "Usuario")
-                        .WithOne("Cliente")
-                        .HasForeignKey("ChatBotApi.Models.Cliente", "UserModelId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.Navigation("Usuario");
                 });
 
             modelBuilder.Entity("ChatBotApi.Models.Mensagem", b =>
@@ -249,18 +180,6 @@ namespace ChatBotApi.Migrations
             modelBuilder.Entity("ChatBotApi.Models.Atendimento", b =>
                 {
                     b.Navigation("Mensagens");
-                });
-
-            modelBuilder.Entity("ChatBotApi.Models.Cliente", b =>
-                {
-                    b.Navigation("Atendimentos");
-                });
-
-            modelBuilder.Entity("ChatBotApi.UserModel", b =>
-                {
-                    b.Navigation("Atendente");
-
-                    b.Navigation("Cliente");
                 });
 #pragma warning restore 612, 618
         }

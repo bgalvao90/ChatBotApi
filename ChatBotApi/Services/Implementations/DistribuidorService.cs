@@ -1,4 +1,5 @@
 ﻿using ChatBotApi.Models;
+using ChatBotApi.Models.Enums;
 using ChatBotApi.Repositories.Interfaces;
 using ChatBotApi.Services.Interfaces;
 
@@ -6,15 +7,41 @@ namespace ChatBotApi.Services.Implementations
 {
     public class DistribuidorService : IDistribuidorService
     {
-        private readonly IAtendenteRepository _repo;
-        public DistribuidorService(IAtendenteRepository repo)
+        private readonly IIAService _iaService;
+        private readonly IUnitOfWork _uof;
+
+        public DistribuidorService(IIAService iaService, IUnitOfWork uof)
         {
-            _repo = repo;
+            _iaService = iaService;
+            _uof = uof;
         }
 
-        public async Task<Atendente?> ObterAtendenteDisponivelAsync()
+        public async Task<Atendimento?> CriarAtendimentoAsync(Mensagem mensagem)
         {
-            return await _repo.ObterAtendenteComMenorAtendimentosAsync();
+            var (categoria, titulo, resumo) = await _iaService.ClassificarMensagemAsync(mensagem.Conteudo);
+
+            var atendentesDisponiveis = await _uof.AtendenteRepository.ObterAtendenteComMenorAtendimentosAsync();
+
+            if (atendentesDisponiveis == null)
+            {
+                throw new Exception("Nenhum atendete disponível.");
+            }
+            var novoAtendimento = new Atendimento
+            {
+                Titulo = titulo,
+                Categoria = categoria,
+                Observacao = resumo,
+                NomeUsuario = mensagem.EnviadoPor,
+                CriadoEm = DateTime.Now,
+                Status = AtendimentoStatus.Andamento,
+                AtendenteId = atendentesDisponiveis.Id,
+                Mensagens = new List<Mensagem> { mensagem },
+            };
+
+            await _uof.AtendimentoRepository.CreateAsync(novoAtendimento);
+            await _uof.CommitAsync();
+
+            return novoAtendimento;
         }
     }
 }

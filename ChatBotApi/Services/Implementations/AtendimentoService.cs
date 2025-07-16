@@ -9,84 +9,27 @@ namespace ChatBotApi.Services.Implementations
 {
     public class AtendimentoService : IAtendimentoService
     {
-        private readonly IAtendimentoRepository _atendimentoRepo;
-        private readonly IAtendenteRepository _atendenteRepo;
-        private readonly IRepository<Mensagem> _mensagemRepo;
-        private readonly IDistribuidorService _distribuidorService;
-        private readonly ICanalService _canalService;
-        private readonly IMapper _mapper;
-        private readonly IUnitOfWork _uof;
+        private readonly IUnitOfWork _uow;
 
-        public AtendimentoService(
-            IAtendimentoRepository atendimentoRepo,
-            IAtendenteRepository atendenteRepo,
-            IRepository<Mensagem> mensagemRepo,
-            IDistribuidorService distribuidorService,
-            ICanalService canalService,
-            IMapper mapper,
-            IUnitOfWork uof)
+        public AtendimentoService(IUnitOfWork uow)
         {
-            _atendimentoRepo = atendimentoRepo;
-            _atendenteRepo = atendenteRepo;
-            _mensagemRepo = mensagemRepo;
-            _distribuidorService = distribuidorService;
-            _canalService = canalService;
-            _mapper = mapper;
-            _uof = uof;
+            _uow = uow;
         }
 
-        public async Task CriarOuEncaminharAtendimentoAsync(MensagemEntradaDto dto)
+        public async Task<Atendimento?> ObterPorIdAsync(int id)
         {
-            var atendimento = await _atendimentoRepo.BuscarAtivoPorUsuarioExterno(dto.IdUsuarioExterno);
-
-            if (atendimento == null)
-            {
-                var atendente = await _distribuidorService.ObterAtendenteDisponivelAsync();
-                if (atendente == null)
-                {
-                    throw new Exception("Nenhum atendente disponível.");
-                }
-
-                atendimento = new Atendimento
-                {
-                    Canal = dto.Canal,
-                    IdUsuarioExterno = dto.IdUsuarioExterno,
-                    NomeUsuario = dto.NomeUsuario,
-                    AtendenteId = atendente.Id,
-                    Status = AtendimentoStatus.Iniciado,
-                    CriadoEm = DateTime.Now,
-                    Mensagens = new List<Mensagem>()
-                };
-                _atendimentoRepo.Create(atendimento); // Removed 'await' as Create is not asynchronous
-            }
-            var mensagem = _mapper.Map<Mensagem>(dto);
-            mensagem.AtendimentoId = atendimento.Id;
-            mensagem.EnviadaPorAtendente = false;
-
-            _mensagemRepo.Create(mensagem); // Removed 'await' as Create is not asynchronous
-            await _uof.CommitAsync();
+            return await _uow.AtendimentoRepository.GetAsync(a => a.Id == id);
         }
 
-
-        public async Task EnviarRespostaDoAtendenteAsync(RespostaAtendenteDto dto)
+        public async Task FinalizarAtendimentoAsync(int id)
         {
-            var atendimento = await _atendimentoRepo.GetAsync(a => a.Id == dto.AtendimentoId);
+            var atendimento = await _uow.AtendimentoRepository.GetAsync(a => a.Id == id);
+
             if (atendimento == null)
                 throw new Exception("Atendimento não encontrado.");
 
-            var mensagem = new Mensagem
-            {
-                AtendimentoId = dto.AtendimentoId,
-                Conteudo = dto.Mensagem,
-                DataHora = DateTime.Now,
-                EnviadaPorAtendente = true
-            };
-
-            await _mensagemRepo.AddAsync(mensagem);
-            await _uof.CommitAsync();
-
-            await _canalService.EnviarMensagemParaUsuario(atendimento.Canal, atendimento.IdUsuarioExterno, dto.Mensagem);
+            atendimento.Status = AtendimentoStatus.Concluido;
+            await _uow.CommitAsync();
         }
-    }
     }
 }

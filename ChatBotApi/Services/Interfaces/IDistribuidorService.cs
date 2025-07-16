@@ -4,6 +4,6 @@ namespace ChatBotApi.Services.Interfaces
 {
     public interface IDistribuidorService
     {
-        Task<Atendente?> ObterAtendenteDisponivelAsync();
+        Task<Atendimento?> CriarAtendimentoAsync(Mensagem mensagem);
     }
 }
