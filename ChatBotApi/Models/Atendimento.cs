@@ -10,6 +10,7 @@ namespace ChatBotApi.Models
         public string NomeUsuario { get; set; }
         public int AtendenteId { get; set; }
         public AtendimentoStatus  Status { get; set; }
+        public DateTime CriadoEm { get; set; }
         public List<Mensagem> Mensagens { get; set; }
 
     }
