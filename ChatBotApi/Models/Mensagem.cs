@@ -1,0 +1,12 @@
+﻿namespace ChatBotApi.Models
+{
+    public class Mensagem
+    {
+        public int Id { get; set; }
+        public int AtendimentoId { get; set; }
+        public string Conteudo { get; set; }
+        public DateTime DataHora { get; set; }
+        public string EnviadoPor { get; set; }
+        public bool EnviadaPorAtendente { get; set; }
+    }
+}
