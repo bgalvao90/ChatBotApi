@@ -1,4 +1,5 @@
-﻿using ChatBotApi.Models.Enums;
+﻿using System.Text.Json.Serialization;
+using ChatBotApi.Models.Enums;
 
 namespace ChatBotApi.Models
 {
@@ -12,6 +13,7 @@ namespace ChatBotApi.Models
         public AtendenteStatus Status { get; set; }
         public int UserModelId { get; set; }
         public UserModel? Usuario { get; set; }
+        [JsonIgnore]
         public ICollection<Atendimento> Atendimentos { get; set; } = new List<Atendimento>();
     }
 }

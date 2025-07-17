@@ -1,4 +1,5 @@
-﻿using ChatBotApi.Context;
+﻿using System.Linq.Expressions;
+using ChatBotApi.Context;
 using ChatBotApi.Models;
 using ChatBotApi.Models.Enums;
 using ChatBotApi.Repositories.Interfaces;
@@ -21,5 +22,16 @@ namespace ChatBotApi.Repositories.Implementations
                 .Include(a => a.Mensagens)
                 .FirstOrDefaultAsync(a => a.IdUsuarioExterno == idUsuarioExterno && a.Status != AtendimentoStatus.Concluido);
         }
+
+        public IQueryable<Atendimento> GetQueryable(Expression<Func<Atendimento, bool>> filter = null)
+        {
+            IQueryable<Atendimento> query = _context.Atendimentos;
+
+            if (filter != null)
+                query = query.Where(filter);
+
+            return query;
+        }
+
     }
 }

@@ -11,6 +11,7 @@ namespace ChatBotApi.Models
         public string Conteudo { get; set; }
         public DateTime DataHora { get; set; }
         public string EnviadoPor { get; set; }
+        public int ClienteId { get; set; }
         public bool EnviadaPorAtendente { get; set; }
         [JsonIgnore]
         public Atendimento Atendimento { get; set; }

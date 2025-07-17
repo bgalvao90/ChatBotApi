@@ -26,10 +26,11 @@ namespace ChatBotApi.Services.Implementations
             {
                 throw new Exception("Nenhum atendete disponível.");
             }
+
             var novoAtendimento = new Atendimento
             {
-                Canal = mensagem.Canal,
-                IdUsuarioExterno = mensagem.IdUsuarioExterno,
+                Canal = string.IsNullOrEmpty(mensagem.Canal) ? "Desconhecido" : mensagem.Canal,
+                IdUsuarioExterno = string.IsNullOrEmpty(mensagem.IdUsuarioExterno) ? "Não Informado" : mensagem.IdUsuarioExterno,
                 Titulo = titulo,
                 Categoria = categoria,
                 Observacao = resumo,
@@ -37,6 +38,7 @@ namespace ChatBotApi.Services.Implementations
                 CriadoEm = DateTime.Now,
                 Status = AtendimentoStatus.Iniciado,
                 AtendenteId = atendentesDisponiveis.Id,
+                ClienteId = mensagem.ClienteId,
                 Mensagens = new List<Mensagem> { mensagem },
             };
 

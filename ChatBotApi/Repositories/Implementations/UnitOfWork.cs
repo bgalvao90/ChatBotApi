@@ -8,6 +8,7 @@ namespace ChatBotApi.Repositories.Implementations
         private  IAtendimentoRepository _atendimentoRepository;
         private  IAtendenteRepository _atendenteRepository;
         private      IMensagemRepository _mensagemRepository;
+        private IClienteRepository _clienteRepository;
         private AppDbContext _context;
 
         public UnitOfWork(AppDbContext context)
@@ -34,6 +35,14 @@ namespace ChatBotApi.Repositories.Implementations
             get
             {
                 return _mensagemRepository = _mensagemRepository ?? new MensagemRepository(_context);
+            }
+        }
+
+        public IClienteRepository ClienteRepository
+        {
+            get
+            {
+                return _clienteRepository = _clienteRepository ?? new ClienteRepository(_context);
             }
         }
 

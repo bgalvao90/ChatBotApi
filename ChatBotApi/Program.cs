@@ -98,6 +98,8 @@ builder.Services.AddScoped<IAtendimentoService, AtendimentoService>();
 builder.Services.AddScoped<IIAService, IAService>();
 builder.Services.AddScoped<IMensagemService, MensagemService>();
 builder.Services.AddScoped<ICanalService, TelegramService>();
+builder.Services.AddScoped<IClienteService, ClienteService>();
+
 
 
 
@@ -120,6 +122,7 @@ app.UseHttpsRedirection();
 
 app.UseCors("PermitirTudo");
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

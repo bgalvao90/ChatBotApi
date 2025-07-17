@@ -31,8 +31,16 @@ namespace ChatBotApi.Services.Implementations
                 throw new Exception("Atendente não encontrado.");
 
             atendente.Status = status;
-            atendente.Disponivel = status == AtendenteStatus.Online;
             await _uow.CommitAsync();
+        }
+        public async Task<Atendente?> ObterPorUserModelIdAsync(int UserModelId)
+        {
+            return await _uow.AtendenteRepository.GetAsync(c => c.UserModelId == UserModelId);
+        }
+
+        public async Task<Atendente?> ObterPorId(int id)
+        {
+            return await _uow.AtendenteRepository.GetAsync(a => a.Id == id);
         }
     }
 }

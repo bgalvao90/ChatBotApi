@@ -51,7 +51,7 @@ namespace ChatBotApi.Controllers
                 Nome = usuarioEncontrado.UserName,
                 Role = usuarioEncontrado.Role.ToString()});
         }
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         [HttpPost("CriarUsuario")]
         public async Task<ActionResult> CreateUser([FromBody] RegisterUserDto user)
         {

@@ -4,6 +4,7 @@ using ChatBotApi.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ChatBotApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250717125316_AjustandoCampoAtendenteId")]
+    partial class AjustandoCampoAtendenteId
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -218,21 +221,17 @@ namespace ChatBotApi.Migrations
 
             modelBuilder.Entity("ChatBotApi.Models.Atendimento", b =>
                 {
-                    b.HasOne("ChatBotApi.Models.Atendente", "Atendente")
+                    b.HasOne("ChatBotApi.Models.Atendente", null)
                         .WithMany("Atendimentos")
                         .HasForeignKey("AtendenteId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("ChatBotApi.Models.Cliente", "Cliente")
+                    b.HasOne("ChatBotApi.Models.Cliente", null)
                         .WithMany("Atendimentos")
                         .HasForeignKey("ClienteId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Atendente");
-
-                    b.Navigation("Cliente");
                 });
 
             modelBuilder.Entity("ChatBotApi.Models.Cliente", b =>

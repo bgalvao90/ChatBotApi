@@ -23,6 +23,19 @@ namespace ChatBotApi.Context
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Atendimento>()
+                .HasOne(a => a.Atendente)
+                .WithMany(a => a.Atendimentos)
+                .HasForeignKey(a => a.AtendenteId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Atendimento>()
+                .HasOne(a => a.Cliente)
+                .WithMany(c => c.Atendimentos)
+                .HasForeignKey(a => a.ClienteId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+
+            modelBuilder.Entity<Atendimento>()
                 .HasMany(a => a.Mensagens)
                 .WithOne(m => m.Atendimento)
                 .HasForeignKey(m => m.AtendimentoId)

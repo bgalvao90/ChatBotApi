@@ -2,6 +2,7 @@
 using ChatBotApi.Context;
 using ChatBotApi.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 
 namespace ChatBotApi.Repositories.Implementations
 {
@@ -19,11 +20,18 @@ namespace ChatBotApi.Repositories.Implementations
             return await _context.Set<T>().AsNoTracking().ToListAsync();
         }
 
+        public async Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>> predicate)
+        {
+            return await _context.Set<T>()
+            .Where(predicate)
+            .AsNoTracking()
+            .ToListAsync();
+        }
+
         public async Task<T?> GetAsync(Expression<Func<T, bool>> predicate)
         {
             return await _context.Set<T>().FirstOrDefaultAsync(predicate);
         }
-
         public async Task<T> CreateAsync(T entity)
         {
             await _context.Set<T>().AddAsync(entity);
