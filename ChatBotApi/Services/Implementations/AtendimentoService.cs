@@ -86,7 +86,9 @@ namespace ChatBotApi.Services.Implementations
 
         public async Task<Atendimento?> ObterPorIdAsync(int id)
         {
-            return await _uow.AtendimentoRepository.GetAsync(a => a.Id == id);
+            return await _uow.AtendimentoRepository.GetQueryable(a => a.Id == id)
+                .Include(a => a.Atendente)
+                .FirstOrDefaultAsync();
         }
 
 
@@ -129,11 +131,11 @@ namespace ChatBotApi.Services.Implementations
        .Include(a => a.Atendente)
        .ToListAsync();
         }
-        
+
         public async Task<List<Atendimento>> ListarPendentesClienteAsync(int clienteId)
         {
             return await _uow.AtendimentoRepository
-                .GetQueryable(a => a.Status != AtendimentoStatus.Concluido 
+                .GetQueryable(a => a.Status != AtendimentoStatus.Concluido
                 && a.ClienteId == clienteId)
                 .Include(a => a.Atendente)
                 .ToListAsync();
@@ -211,14 +213,18 @@ namespace ChatBotApi.Services.Implementations
         }
         public async Task<List<Atendimento>> ListarDoCliente(int clienteId)
         {
-            var atendimentos = await _uow.AtendimentoRepository.GetAllAsync(a => a.ClienteId == clienteId);
-            return atendimentos.ToList();
+            return await _uow.AtendimentoRepository
+                .GetQueryable(a => a.ClienteId == clienteId)
+                .Include(a => a.Atendente)
+                .ToListAsync();
         }
 
         public async Task<List<Atendimento>> ListarDoAtendente(int atendenteId)
         {
-            var atendimentos = await _uow.AtendimentoRepository.GetAllAsync(a => a.AtendenteId == atendenteId);
-            return atendimentos.ToList();
+            return await _uow.AtendimentoRepository
+                .GetQueryable(a => a.AtendenteId == atendenteId)
+                .Include(a => a.Atendente)
+                .ToListAsync();
         }
 
         public async Task<List<Atendimento>> FilaAtendimento()
