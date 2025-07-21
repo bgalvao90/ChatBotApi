@@ -2,6 +2,7 @@
 using ChatBotApi.DTOs;
 using ChatBotApi.Models;
 using ChatBotApi.Models.Enums;
+using ChatBotApi.Repositories.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,13 +10,16 @@ namespace ChatBotApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [ApiVersion("1.0")]
     public class ClienteController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly IUnitOfWork _uow;
 
-        public ClienteController(AppDbContext context)
+        public ClienteController(AppDbContext context, IUnitOfWork uow = null)
         {
             _context = context;
+            _uow = uow;
         }
 
         [HttpPost("registrar")]
@@ -46,6 +50,17 @@ namespace ChatBotApi.Controllers
                 ClienteId = cliente.Id,
                 UsuarioId = usuario.Id
             });
+        }
+
+        [HttpGet("clientes")]
+        public async Task<ActionResult<Atendente>> GetAllAsync()
+        {
+            var clientes = await _uow.ClienteRepository.GetAllAsync();
+
+            if (clientes is null)
+                return NotFound("Não existe clientes cadastrados.");
+
+            return Ok(clientes.ToList());
         }
     }
 }

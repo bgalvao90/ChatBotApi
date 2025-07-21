@@ -7,6 +7,7 @@ namespace ChatBotApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [ApiVersion("1.0")]
     public class WebhookTelegramController : ControllerBase
     {
         private readonly IDistribuidorService _distribuidorService;

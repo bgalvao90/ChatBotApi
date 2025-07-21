@@ -26,8 +26,9 @@ public class IAService : IIAService
 Você é um assistente inteligente que ajuda atendentes humanos a entender rapidamente o tipo de problema de um cliente.
 
 Com base na mensagem abaixo, retorne um JSON com:
-- ""Categoria"": uma palavra como vendas, financeiro, suporte, técnico, entrega ou outros.
-- ""Titulo"": uma frase curta de até 6 palavras, resumindo o problema de forma clara.
+- ""Categoria"": Sempre vai ser Suporte - WD
+- ""Titulo"": uma frase curta de até 6 palavras, resumindo o problema de forma clara, geralmente utilze ""integração"" para novas integrações, ""Ajuste de integração""
+para lojas que só serão ajustadas, ""Criação de usuário"" para criar usuários e ""divergencia de dados"" para divergencias.
 
 Mensagem: ""{mensagem}""
 

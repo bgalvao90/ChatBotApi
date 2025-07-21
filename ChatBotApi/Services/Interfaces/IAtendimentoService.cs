@@ -22,5 +22,6 @@ namespace ChatBotApi.Services.Interfaces
         Task<List<Atendimento>> ListarDoAtendente(int atendenteId);
         Task<List<Atendimento>> FilaAtendimento();
         Task<List<Mensagem>> ListarMensagensAsync(int atendimentoId);
+        Task<List<Atendimento>> ListaMensagemFiltro(string conteudo);
     }
 }

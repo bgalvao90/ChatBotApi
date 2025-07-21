@@ -11,15 +11,16 @@ namespace ChatBotApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [ApiVersion("1.0")]
     public class AtendenteController : ControllerBase
     {
         private readonly AppDbContext _context;
-        private readonly IUnitOfWork _uof;
+        private readonly IUnitOfWork _uow;
 
-        public AtendenteController(AppDbContext context, IUnitOfWork uof)
+        public AtendenteController(AppDbContext context, IUnitOfWork uow)
         {
             _context = context;
-            _uof = uof;
+            _uow = uow;
         }
 
         [HttpPost("registrar")]
@@ -46,13 +47,24 @@ namespace ChatBotApi.Controllers
             };
 
             await _context.Atendentes.AddAsync(atendente);
-            await _uof.CommitAsync();
+            await _uow.CommitAsync();
 
             return Ok(new
             {
                 AtendenteId = atendente.Id,
                 UsuarioId = usuario.Id
             });
+        }
+
+        [HttpGet("atendentes")]
+        public async Task<ActionResult<Atendente>> GetAllAsync()
+        {
+            var atendentes = await _uow.AtendenteRepository.GetAllAsync();
+
+            if (atendentes is null)
+                return NotFound("Não existe atendentes cadastrados.");
+
+            return Ok(atendentes.ToList());
         }
     }
 

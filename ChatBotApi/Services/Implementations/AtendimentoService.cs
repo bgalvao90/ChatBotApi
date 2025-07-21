@@ -37,6 +37,7 @@ namespace ChatBotApi.Services.Implementations
                 EnviadoPor = respostaDto.EnviadoPor,
                 DataHora = respostaDto.DataHora,
                 Canal = atendimento.Canal,
+                ImagemUrl = respostaDto.ImagemUrl,
                 IdUsuarioExterno = atendimento.IdUsuarioExterno,
                 EnviadaPorAtendente = false
             };
@@ -67,6 +68,7 @@ namespace ChatBotApi.Services.Implementations
                 EnviadoPor = respostaDto.EnviadoPor,
                 DataHora = respostaDto.DataHora,
                 Canal = atendimento.Canal,
+                ImagemUrl = respostaDto.ImagemUrl,
                 IdUsuarioExterno = atendimento.IdUsuarioExterno,
                 EnviadaPorAtendente = true
             };
@@ -91,6 +93,15 @@ namespace ChatBotApi.Services.Implementations
                 .FirstOrDefaultAsync();
         }
 
+        public async Task<List<Atendimento>> ListaMensagemFiltro(string conteudo)
+        {
+            var conteudoLower = conteudo.ToLower();
+
+            var atendimentos = await _uow.AtendimentoRepository.GetAllAsync(a => a.Mensagens.Any
+            (m => m.Conteudo != null && m.Conteudo.ToLower().Contains(conteudoLower)));
+
+            return atendimentos.ToList();
+        }
 
         public async Task<bool> StatusAtendimentoAsync(int id, AtendimentoStatus status)
         {

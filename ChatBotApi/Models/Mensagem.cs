@@ -13,6 +13,7 @@ namespace ChatBotApi.Models
         public string EnviadoPor { get; set; }
         public int ClienteId { get; set; }
         public bool EnviadaPorAtendente { get; set; }
+        public string? ImagemUrl { get; set; }
         [JsonIgnore]
         public Atendimento Atendimento { get; set; }
     }

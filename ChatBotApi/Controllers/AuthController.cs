@@ -9,6 +9,7 @@ namespace ChatBotApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [ApiVersion("1.0")]
     public class AuthController : ControllerBase
     {
         private readonly ITokenService _tokenService;
