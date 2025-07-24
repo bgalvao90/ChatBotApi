@@ -16,7 +16,8 @@ namespace ChatBotApi.Services.Implementations
 
         public async Task<IEnumerable<Atendente>> ObterDisponiveisAsync()
         {
-            var atendente = await _uow.AtendenteRepository.ObterAtendenteComMenorAtendimentosAsync();
+            var categoria = String.Empty;
+            var atendente = await _uow.AtendenteRepository.ObterAtendenteComMenorAtendimentosAsync(categoria);
             if (atendente == null)
             {
                 return Enumerable.Empty<Atendente>();
@@ -24,7 +25,7 @@ namespace ChatBotApi.Services.Implementations
             return new List<Atendente> { atendente };
         }
 
-        public async Task AtualizarStatusAsync(int id, AtendenteStatus status)
+        public async Task<bool> AtualizarStatusAsync(int id, AtendenteStatus status)
         {
             var atendente = await _uow.AtendenteRepository.GetAsync(a => a.Id == id);
             if (atendente == null)
@@ -32,6 +33,7 @@ namespace ChatBotApi.Services.Implementations
 
             atendente.Status = status;
             await _uow.CommitAsync();
+            return true;
         }
         public async Task<Atendente?> ObterPorUserModelIdAsync(int UserModelId)
         {

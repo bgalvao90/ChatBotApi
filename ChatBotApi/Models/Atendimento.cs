@@ -15,6 +15,7 @@ namespace ChatBotApi.Models
         public string Observacao { get; set; }
         public AtendimentoStatus  Status { get; set; }
         public DateTime CriadoEm { get; set; }
+        public DateTime? FinalizadoEm { get; set; }
         public int ClienteId { get; set; } 
         public Cliente Cliente { get; set; }
         public List<Mensagem> Mensagens { get; set; } = new List<Mensagem>();

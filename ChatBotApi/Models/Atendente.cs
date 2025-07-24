@@ -10,7 +10,7 @@ namespace ChatBotApi.Models
 
         public string Funcao { get; set; }
         public bool Disponivel { get; set; }
-        public AtendenteStatus Status { get; set; }
+        public AtendenteStatus Status { get; set; } = AtendenteStatus.Offline;
         public int UserModelId { get; set; }
         public UserModel? Usuario { get; set; }
         [JsonIgnore]

@@ -4,6 +4,6 @@ namespace ChatBotApi.Repositories.Interfaces
 {
     public interface IAtendenteRepository : IRepository<Atendente>
     {
-        Task<Atendente?> ObterAtendenteComMenorAtendimentosAsync();
+        Task<Atendente?> ObterAtendenteComMenorAtendimentosAsync(string categoria);
     }
 }

@@ -2,6 +2,7 @@
 using ChatBotApi.Models.Enums;
 using ChatBotApi.Repositories.Interfaces;
 using ChatBotApi.Services.Interfaces;
+using System.Globalization;
 
 namespace ChatBotApi.Services.Implementations
 {
@@ -20,12 +21,13 @@ namespace ChatBotApi.Services.Implementations
         {
             var (categoria, titulo, resumo) = await _iaService.ClassificarMensagemAsync(mensagem.Conteudo);
 
-            var atendentesDisponiveis = await _uof.AtendenteRepository.ObterAtendenteComMenorAtendimentosAsync();
+            var atendentesDisponiveis = await _uof.AtendenteRepository.ObterAtendenteComMenorAtendimentosAsync(categoria);
 
             if (atendentesDisponiveis == null)
             {
                 throw new Exception("Nenhum atendete disponível.");
             }
+            categoria = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(categoria.Trim().ToLower());
 
             var novoAtendimento = new Atendimento
             {

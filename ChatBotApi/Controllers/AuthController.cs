@@ -51,6 +51,7 @@ namespace ChatBotApi.Controllers
                 return Ok(new { Token = tokenString,
                 Nome = usuarioEncontrado.UserName,
                 Role = usuarioEncontrado.Role.ToString()});
+
         }
         //[Authorize(Roles = "Admin")]
         [HttpPost("CriarUsuario")]

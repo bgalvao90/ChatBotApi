@@ -3,7 +3,6 @@
     public enum AtendenteStatus
     {
         Online,
-        EmAtendimento,
         Ausente,
         Offline
     }

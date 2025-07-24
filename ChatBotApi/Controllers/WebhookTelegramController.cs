@@ -40,7 +40,6 @@ namespace ChatBotApi.Controllers
                 EnviadaPorAtendente = false
             };
 
-            // Processa em segundo plano para não travar o webhook
             _ = Task.Run(async () =>
             {
                 try
@@ -55,7 +54,6 @@ namespace ChatBotApi.Controllers
                 }
             });
 
-            // Responde imediatamente para o Telegram
             return Ok();
         }
 

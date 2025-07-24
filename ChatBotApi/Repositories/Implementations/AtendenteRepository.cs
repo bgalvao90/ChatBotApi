@@ -12,10 +12,11 @@ namespace ChatBotApi.Repositories.Implementations
         {
         }
 
-        public async Task<Atendente?> ObterAtendenteComMenorAtendimentosAsync()
+        public async Task<Atendente?> ObterAtendenteComMenorAtendimentosAsync(string categoria)
         {
             return await _context.Atendentes
-                .Where(a => a.Disponivel && a.Status == AtendenteStatus.Online)
+                .Where(a => a.Disponivel && a.Status == AtendenteStatus.Online 
+                && a.Funcao.ToLower().Contains(categoria.ToLower()))
                 .OrderBy(a => a.Atendimentos.Count())
                 .FirstOrDefaultAsync();
         }

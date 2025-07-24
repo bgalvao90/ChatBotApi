@@ -72,7 +72,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("PermitirTudo", policy =>
     {
         policy
-            .SetIsOriginAllowed(_ => true) 
+            .SetIsOriginAllowed(_ => true)
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials();

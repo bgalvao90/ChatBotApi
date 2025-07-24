@@ -17,6 +17,7 @@ namespace ChatBotApi.DTOs
 
         public AtendimentoStatus Status { get; set; } = AtendimentoStatus.Iniciado;
         public DateTime CriadoEm { get; set; }
+        public DateTime? FinalizadoEm { get; set; }
         public int? PosicaoNaFila { get; set; }
         public List<MensagemDto> Mensagens { get; set; } = new List<MensagemDto>();
     }

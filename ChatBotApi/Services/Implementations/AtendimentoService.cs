@@ -6,6 +6,9 @@ using ChatBotApi.Repositories.Interfaces;
 using ChatBotApi.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualBasic;
+using System;
+using System.Globalization;
+using System.Linq;
 
 namespace ChatBotApi.Services.Implementations
 {
@@ -126,21 +129,23 @@ namespace ChatBotApi.Services.Implementations
                     return false;
 
                 atendimento.Status = AtendimentoStatus.Concluido;
+                atendimento.FinalizadoEm = DateTime.Now;
                 await _uow.CommitAsync();
                 return true;
             }
             catch (Exception ex)
             {
-                throw new Exception("Erro ao obter atendimento: " + ex.Message, ex);
+                throw new Exception("Erro ao finalizar atendimento: " + ex.Message, ex);
             }
         }
 
         public async Task<List<Atendimento>> ListarPendentesAsync()
         {
             return await _uow.AtendimentoRepository
-       .GetQueryable(a => a.Status != AtendimentoStatus.Concluido)
-       .Include(a => a.Atendente)
-       .ToListAsync();
+               .GetQueryable(a => a.Status != AtendimentoStatus.Concluido
+               && a.Atendente.Funcao.ToLower() == a.Categoria.ToLower())
+               .Include(a => a.Atendente)
+               .ToListAsync();
         }
 
         public async Task<List<Atendimento>> ListarPendentesClienteAsync(int clienteId)
@@ -149,6 +154,7 @@ namespace ChatBotApi.Services.Implementations
                 .GetQueryable(a => a.Status != AtendimentoStatus.Concluido
                 && a.ClienteId == clienteId)
                 .Include(a => a.Atendente)
+                .AsNoTracking()
                 .ToListAsync();
         }
 
@@ -234,28 +240,45 @@ namespace ChatBotApi.Services.Implementations
         {
             return await _uow.AtendimentoRepository
                 .GetQueryable(a => a.AtendenteId == atendenteId)
+                .Where(a => a.Atendente.Funcao.ToLower() == a.Categoria.ToLower())
                 .Include(a => a.Atendente)
                 .ToListAsync();
         }
 
-        public async Task<List<Atendimento>> FilaAtendimento()
+
+        public async Task<Dictionary<string, List<Atendimento>>> FilaAtendimento()
         {
-            var fila = await _uow.AtendimentoRepository
-                .GetAllAsync(a => a.Status != AtendimentoStatus.Concluido);
+            var atendimentos = await _uow.AtendimentoRepository
+                .GetQueryable(a => a.Status != AtendimentoStatus.Concluido && a.Atendente != null && a.Categoria != null)
+                .Include(a => a.Atendente)
+                .OrderBy(a => a.CriadoEm)
+                .ToListAsync();
 
-            var filaOrdenada = fila.OrderBy(a => a.CriadoEm).ToList();
+            var filas = atendimentos
+                .Where(a =>
+                    !string.IsNullOrWhiteSpace(a.Categoria) &&
+                    !string.IsNullOrWhiteSpace(a.Atendente.Funcao) &&
+                    string.Equals(a.Categoria.Trim(), a.Atendente.Funcao.Trim(), StringComparison.OrdinalIgnoreCase)
+                )
+                .GroupBy(a => a.Categoria.Trim().ToLowerInvariant()) 
+                .ToDictionary(
+                g => CultureInfo.CurrentCulture.TextInfo.ToTitleCase(g.First().Categoria.Trim().ToLower()), 
+                g => g.ToList()
+      );
 
-            return filaOrdenada;
+
+            return filas;
         }
+
 
         public async Task<List<Mensagem>> ListarMensagensAsync(int atendimentoId)
         {
             var mensagens = await _uow.MensagemRepository
-             .GetAllAsync(m => m.AtendimentoId == atendimentoId);
+                .GetAllAsync(m => m.AtendimentoId == atendimentoId);
 
             var mensagensOrdenadas = mensagens.OrderBy(d => d.DataHora);
             return mensagensOrdenadas.ToList();
-
         }
+
     }
 }

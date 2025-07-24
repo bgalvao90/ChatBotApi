@@ -23,18 +23,21 @@ public class IAService : IIAService
     public async Task<(string categoria, string titulo, string Resumo)> ClassificarMensagemAsync(string mensagem)
     {
         var prompt = $@"
-Você é um assistente inteligente que ajuda atendentes humanos a entender rapidamente o tipo de problema de um cliente.
+            Você é um assistente inteligente que ajuda atendentes a classificar mensagens de clientes.
 
-Com base na mensagem abaixo, retorne um JSON com:
-- ""Categoria"": Sempre vai ser Suporte - WD
-- ""Titulo"": uma frase curta de até 6 palavras, resumindo o problema de forma clara, geralmente utilze ""integração"" para novas integrações, ""Ajuste de integração""
-para lojas que só serão ajustadas, ""Criação de usuário"" para criar usuários e ""divergencia de dados"" para divergencias.
+            Com base na mensagem abaixo, retorne um JSON com:
+            - ""Categoria"": Categoria principal do problema. Ex: Suporte - WD, Financeiro, Comercial
+            - Suporte - WD irá ser relacionado com ajuste de integração, integração, criação de usuário e divergência de dados.
+            - Suporte - Gruppy irá ser relacionado com problemas ou duvidas sobre cotação, boleto bancário, homologações.
+            - ""Titulo"": Frase curta com até 6 palavras resumindo o problema.
+            - ""Resumo"": Um pequeno resumo da situação (até 2 frases).
 
-Mensagem: ""{mensagem}""
+            Mensagem: ""{mensagem}""
 
-Apenas retorne o JSON no formato:
-{{ ""Categoria"": ""..."", ""Titulo"": ""..."" }}
-";
+            Retorne apenas o JSON neste formato:
+            {{ ""Categoria"": ""..."", ""Titulo"": ""..."", ""Resumo"": ""..."" }}
+            ";
+
 
         var request = new
         {

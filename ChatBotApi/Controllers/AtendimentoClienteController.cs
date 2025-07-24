@@ -1,5 +1,4 @@
-﻿using System.Security.Claims;
-using AutoMapper;
+﻿using AutoMapper;
 using ChatBotApi.DTOs;
 using ChatBotApi.Models;
 using ChatBotApi.Services.Implementations;
@@ -7,6 +6,8 @@ using ChatBotApi.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using System.Globalization;
+using System.Security.Claims;
 
 namespace ChatBotApi.Controllers
 {
@@ -54,19 +55,32 @@ namespace ChatBotApi.Controllers
                     .ToList();
             }
 
-            var fila = await _atendimentoService.FilaAtendimento();
             var dtos = _mapper.Map<List<AtendimentoDto>>(atendimentos);
+
+            var filas = await _atendimentoService.FilaAtendimento();
 
             foreach (var dto in dtos)
             {
-                dto.PosicaoNaFila = fila.FindIndex(f => f.Id == dto.Id) + 1;
+                var categoria = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(dto.Categoria?.Trim().ToLower() ?? "");
+
+
+                if (!string.IsNullOrWhiteSpace(categoria) && filas.TryGetValue(categoria, out var filaCategoria))
+                {
+                    var index = filaCategoria.FindIndex(f => f.Id == dto.Id);
+                    dto.PosicaoNaFila = index >= 0 ? index + 1 : 0;
+                }
+                else
+                {
+                    dto.PosicaoNaFila = 0;
+                }
             }
 
+            await AtualizarDashboardEmLote(cliente.Id, dtos);
             return Ok(dtos);
         }
 
         [HttpGet("filtro")]
-        public async Task<ActionResult<AtendimentoDto>> GetByFilter(string conteudo) 
+        public async Task<ActionResult<AtendimentoDto>> GetByFilter(string conteudo)
         {
             var userModelId = ObterClienteIdLogado();
             var cliente = await _clienteService.ObterPorUserModelIdAsync(userModelId);
@@ -79,6 +93,8 @@ namespace ChatBotApi.Controllers
             }
 
             var atendimentosDto = _mapper.Map<List<AtendimentoDto>>(atendimentos);
+
+            await AtualizarDashboard(atendimentosDto);
 
             return Ok(atendimentosDto);
         }
@@ -106,11 +122,24 @@ namespace ChatBotApi.Controllers
                     return NotFound();
                 }
 
-                var fila = await _atendimentoService.FilaAtendimento();
-                var posicaoFila = fila.FindIndex(a => a.Id == atendimento.Id) + 1;
-
                 var atendimentoDto = _mapper.Map<AtendimentoDto>(atendimento);
-                atendimentoDto.PosicaoNaFila = posicaoFila;
+
+                var filas = await _atendimentoService.FilaAtendimento();
+
+                var categoria = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(atendimentoDto.Categoria?.Trim().ToLower() ?? "");
+
+
+                if (!string.IsNullOrWhiteSpace(categoria) && filas.TryGetValue(categoria, out var filaCategoria))
+                {
+                    var index = filaCategoria.FindIndex(f => f.Id == atendimentoDto.Id);
+                    atendimentoDto.PosicaoNaFila = index >= 0 ? index + 1 : 0;
+                }
+                else
+                {
+                    atendimentoDto.PosicaoNaFila = 0;
+                }
+
+
 
                 return Ok(atendimentoDto);
             }
@@ -122,56 +151,81 @@ namespace ChatBotApi.Controllers
         }
 
 
-            [HttpPost("criar")]
-            public async Task<ActionResult<AtendimentoDto>> CriarAtendimentoAsync([FromBody] MensagemEntradaDto entrada)
-            {
-                if (!ModelState.IsValid)
-                    return BadRequest(ModelState);
-
-                try
-                {
-                    var userModelId = ObterClienteIdLogado();
-
-                    var cliente = await _clienteService.ObterPorUserModelIdAsync(userModelId);
-
-                    var mensagem = new Mensagem
-                    {
-                        Canal = "site",
-                        IdUsuarioExterno = entrada.IdUsuarioExterno,
-                        Conteudo = entrada.Conteudo,
-                        EnviadoPor = cliente.Nome,
-                        DataHora = entrada.DataHora,
-                        ClienteId = cliente.Id,
-                        EnviadaPorAtendente = false
-                    };
-
-                    var atendimento = await _distribuidorService.CriarAtendimentoAsync(mensagem);
-                    var fila = await _atendimentoService.FilaAtendimento();
-                    var posicaoFila = fila.FindIndex(a => a.Id == atendimento.Id) + 1;
-
-                    if (atendimento == null)
-                        return StatusCode(500, new { Erro = "Erro ao criar atendimento." });
-
-                    var atendimentoDto = _mapper.Map<AtendimentoDto>(atendimento);
-                    atendimentoDto.PosicaoNaFila = posicaoFila;
-
-                    await MensagemTempoReal(mensagem, atendimento);
-
-                    return CreatedAtAction(nameof(GetById), new { id = atendimento.Id }, atendimentoDto);
-                }
-                catch (Exception ex)
-                {
-                    return StatusCode(500, new { Erro = ex.Message });
-                }
-            }
-
-        private async Task MensagemTempoReal(Mensagem mensagem, Atendimento atendimento)
+        [HttpPost("criar")]
+        public async Task<ActionResult<AtendimentoDto>> CriarAtendimentoAsync([FromBody] MensagemEntradaDto entrada)
         {
-            var mensagemDto = _mapper.Map<MensagemDto>(mensagem);
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-            await _hubContext.Clients.Group(atendimento.Id.ToString())
-                    .SendAsync("NovaMensagem", mensagemDto);
+            try
+            {
+                var userModelId = ObterClienteIdLogado();
+
+                var cliente = await _clienteService.ObterPorUserModelIdAsync(userModelId);
+
+                var mensagem = new Mensagem
+                {
+                    Canal = "site",
+                    IdUsuarioExterno = entrada.IdUsuarioExterno,
+                    Conteudo = entrada.Conteudo,
+                    EnviadoPor = cliente.Nome,
+                    DataHora = entrada.DataHora,
+                    ClienteId = cliente.Id,
+                    EnviadaPorAtendente = false
+                };
+
+                var atendimento = await _distribuidorService.CriarAtendimentoAsync(mensagem);
+
+                if (atendimento == null)
+                    return StatusCode(500, new { Erro = "Erro ao criar atendimento." });
+
+
+                var atendimentoDto = _mapper.Map<AtendimentoDto>(atendimento);
+
+                var filas = await _atendimentoService.FilaAtendimento();
+
+                var categoria = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(atendimentoDto.Categoria?.Trim().ToLower() ?? "");
+
+
+                if (!string.IsNullOrWhiteSpace(categoria) && filas.TryGetValue(categoria, out var filaCategoria))
+                {
+                    var index = filaCategoria.FindIndex(f => f.Id == atendimentoDto.Id);
+                    atendimentoDto.PosicaoNaFila = index >= 0 ? index + 1 : 0;
+                }
+                else
+                {
+                    atendimentoDto.PosicaoNaFila = 0;
+                }
+
+                var mensagemAtenVirtual = new Mensagem
+                {
+                    Canal = "site",
+                    IdUsuarioExterno = "Assistente Virtual",
+                    Conteudo = $"Olá, {cliente.Nome}. Bem-vindo ao suporte Gruppy! Sua posição na fila é {atendimentoDto.PosicaoNaFila}. Aguarde um instante, em breve um atendente estará com você.",
+                    EnviadoPor = "Assistente Virtual",
+                    DataHora = DateTime.Now,
+                    ClienteId = cliente.Id,
+                    EnviadaPorAtendente = true
+                };
+
+                await _atendimentoService.ResponderAtendenteAsync(mensagemAtenVirtual);
+
+                await MensagemTempoReal(mensagem, atendimento);
+                await MensagemTempoReal(mensagemAtenVirtual, atendimento);
+
+                return Ok(new
+                {
+                    Atendimento = atendimentoDto,
+                    MensagemAutomatica = mensagemAtenVirtual.Conteudo
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Erro = ex.Message });
+            }
         }
+
+       
 
         [HttpGet("pendentes")]
         public async Task<ActionResult<IEnumerable<AtendimentoDto>>> ListarPendentes()
@@ -181,22 +235,27 @@ namespace ChatBotApi.Controllers
             var cliente = await _clienteService.ObterPorUserModelIdAsync(userModelId);
 
             var atendimentos = await _atendimentoService.ListarPendentesClienteAsync(cliente.Id);
-            var fila = await _atendimentoService.FilaAtendimento();
 
-            var atendimentoDtos = _mapper.Map<List<AtendimentoDto>>(atendimentos);
-            foreach (var dto in atendimentoDtos)
+            var dtos = _mapper.Map<List<AtendimentoDto>>(atendimentos);
+            var filas = await _atendimentoService.FilaAtendimento();
+
+            foreach (var dto in dtos)
             {
-                var index = fila.FindIndex(f => f.Id == dto.Id);
-                if (index >= 0)
+                var categoria = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(dto.Categoria?.Trim().ToLower() ?? "");
+
+
+                if (!string.IsNullOrWhiteSpace(categoria) && filas.TryGetValue(categoria, out var filaCategoria))
                 {
-                    dto.PosicaoNaFila = index + 1;
+                    var index = filaCategoria.FindIndex(f => f.Id == dto.Id);
+                    dto.PosicaoNaFila = index >= 0 ? index + 1 : 0;
                 }
                 else
                 {
                     dto.PosicaoNaFila = 0;
                 }
             }
-            return Ok(atendimentoDtos);
+
+            return Ok(dtos);
         }
 
         [HttpPost("{id}/responder")]
@@ -347,7 +406,25 @@ namespace ChatBotApi.Controllers
             }
         }
 
+        private async Task MensagemTempoReal(Mensagem mensagem, Atendimento atendimento)
+        {
+            var mensagemDto = _mapper.Map<MensagemDto>(mensagem);
 
+            await _hubContext.Clients.Group(atendimento.Id.ToString())
+                    .SendAsync("NovaMensagem", mensagemDto);
+        }
+
+        private async Task AtualizarDashboard(List<AtendimentoDto> atendimentoDto)
+        {
+            await _hubContext.Clients.All
+                .SendAsync("AtualizarDashboard", atendimentoDto);
+        }
+
+        private async Task AtualizarDashboardEmLote(int atendenteId, List<AtendimentoDto> atendimentos)
+        {
+            await _hubContext.Clients.User(atendenteId.ToString())
+                .SendAsync("AtualizarDashboard", atendimentos);
+        }
         private int ObterClienteIdLogado()
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
