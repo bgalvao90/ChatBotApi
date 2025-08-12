@@ -5,7 +5,10 @@
       "dynamicId": null
     },
     "secrets1": {
-      "type": "secrets.user"
+      "secretStore": null,
+      "resourceId": null,
+      "type": "secrets.user",
+      "connectionId": null
     }
   }
 }

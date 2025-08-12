@@ -27,8 +27,8 @@ public class IAService : IIAService
 
             Com base na mensagem abaixo, retorne um JSON com:
             - ""Categoria"": Categoria principal do problema. Ex: Suporte - WD, Financeiro, Comercial
-            - Suporte - WD irá ser relacionado com ajuste de integração, integração, criação de usuário e divergência de dados.
-            - Suporte - Gruppy irá ser relacionado com problemas ou duvidas sobre cotação, boleto bancário, homologações.
+            - Suporte - 1 irá ser relacionado com ajuste de integração, integração, criação de usuário e divergência de dados.
+            - Suporte - 2 irá ser relacionado com problemas ou duvidas sobre cotação, boleto bancário, homologações.
             - ""Titulo"": Frase curta com até 6 palavras resumindo o problema.
             - ""Resumo"": Um pequeno resumo da situação (até 2 frases).
 
